@@ -109,7 +109,8 @@ def write_tle_sets_into_text_file(tle_sets: list):
     full_ny2o_file_path = os.path.join(config["ny2o_output_file_name"] + "_" + str(current_date_time_in_iso) + ".txt")
 
     with open(full_ny2o_file_path, "w") as f:
-        f.write(f"File created at: {datetime.now().strftime("%y-%m-%h %H-%M-%S")}\n")
+        time_now = datetime.now().strftime("%A, %B %d, %Y at %I:%M%p")
+        f.write(f"File created at: {time_now}\n")
         for tle_set in tle_sets:
             f.write(f"\nSATELLITE NAME: {str(tle_set[2])}, NORAD ID: {str(tle_set[1])}\n")
             first_tle_line = "\n" if str(tle_set[0][3]).strip() == '' else str(tle_set[0][3]).lstrip()
