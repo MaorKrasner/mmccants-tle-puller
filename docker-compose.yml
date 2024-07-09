@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  tle-puller:
+    image: mmccants-tle-puller:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - LOGIN_URL=https://www.n2yo.com/login/
+      - TLE_OBJECTS_EXTRACTION_URL=https://www.n2yo.com/satellite/
+      - NY2O_OUTPUT_FILE_NAME=ny2o_tle_data
+      - NEW_SPACE_OUTPUT_FOLDER_PATH=/data
+      - EMAIL=tlepuller@gmail.com
+      - PASSWORD=ShteiShurot1234
+    volumes:
+      - /home/newspace/TLE-download:/data
+    restart: always
