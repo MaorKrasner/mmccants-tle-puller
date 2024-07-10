@@ -4,7 +4,8 @@ import logging
 import requests
 import html2text
 from config import config
-from datetime import datetime
+from dateutil.parser import parse
+from datetime import datetime, time
 
 logging.basicConfig(level=logging.INFO)
 
@@ -66,14 +67,26 @@ def delete_all_old_files_in_new_space_folder():
     if os.path.exists(folder_path):
         files_in_folder = os.listdir(folder_path)
         today_date = datetime.now().date()
+        cutoff_time = datetime.combine(today_date, time(22, 0))  # Combine today's date with 22:00 time
 
         for file_name in files_in_folder:
             if file_name.startswith("ny2o_tle_data"):
                 try:
-                    date_part = file_name.split('_')[3].split('.')[0]
-                    file_date = datetime.strptime(date_part, "%Y-%m-%dT%H-%M-%S.%f").date()
+                    # Debug: Print the full file name
+                    logging.debug(f"Processing file: {file_name}")
                     
-                    if file_date < today_date:
+                    date_part = file_name.split('_')[3].split('.')[0]
+                    
+                    # Debug: Print the extracted date part
+                    logging.debug(f"Extracted date part: {date_part}")
+                    
+                    file_datetime = parse(date_part).replace(tzinfo=None)  # Make the datetime naive
+
+                    # Debug: Print the parsed datetime
+                    logging.debug(f"Parsed datetime: {file_datetime}")
+
+                    # Compare the file datetime with the cutoff datetime
+                    if file_datetime < cutoff_time:
                         file_path = os.path.join(folder_path, file_name)
                         try:
                             os.remove(file_path)
@@ -92,6 +105,8 @@ def delete_all_old_files_in_new_space_folder():
     else:
         logging.error("Folder to delete not found. Try again.")
         return False
+
+
 
 def find_satellite_name(text_content: str):
     satellite_name = ""
@@ -154,9 +169,10 @@ def extract_tle_sets_from_ny2o(session: requests.Session):
     #    logging.error("Couldn't delete old files successfully, can't create new ny2o tle sets file.")
 
 def main():
-    session = create_session()
-    is_login_successful = login(session=session)
-    if is_login_successful:
-        extract_tle_sets_from_ny2o(session=session)
+    #session = create_session()
+    #is_login_successful = login(session=session)
+    #if is_login_successful:
+    #    extract_tle_sets_from_ny2o(session=session)
+    delete_all_old_files_in_new_space_folder()
 
 main()
