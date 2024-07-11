@@ -9,7 +9,55 @@ from datetime import datetime, time
 
 logging.basicConfig(level=logging.INFO)
 
-norad_ids = ["29155", "31135", "41183"]
+norad_ids = [
+    '58617',
+    '41465',
+    '47305',
+    '43866',
+    '36124',
+    '31797',
+    '32283',
+    '29658',
+    '32750',
+    '33244',
+    '52887',
+    '58643',
+    '58644',
+    '47947',
+    '47485',
+    '37954',
+    '39061',
+    '40381',
+    '42072',
+    '43495',
+    '55329',
+    '40538',
+    '43223',
+    '45165',
+    '37162',
+    '38109',
+    '39462',
+    '41334',
+    '43145',
+    '28888',
+    '37348',
+    '39232',
+    '43941',
+    '53883',
+    '42689',
+    '48247',
+    '48842',
+    '53367',
+    '53368',
+    '48840',
+    '48605',
+    '46179',
+    '43195',
+    '45017',
+    '43730',
+    '46089',
+    '44226',
+]
 
 
 def create_session():
@@ -141,6 +189,9 @@ def extract_tle_sets_from_ny2o(session: requests.Session):
     #is_deleted_successfully = delete_all_old_files_in_new_space_folder()
 
     #if is_deleted_successfully:
+
+    pattern_for_finding_tle_start_text = r'Two Line Element Set(?:\s*\([^)]*\))*:\s*(.*)'
+    pattern_for_finding_tle_start_text = re.compile(pattern_for_finding_tle_start_text, re.DOTALL)
     tle_sets = []
     for norad in norad_ids:
         data_response = session.get(f'{config["tle_objects_extraction_url"]}?s={norad}')
@@ -150,8 +201,7 @@ def extract_tle_sets_from_ny2o(session: requests.Session):
 
         satellite_name = find_satellite_name(text_content=text_content)
 
-        pattern_for_finding_tle_start_text = r'Two Line Element Set(?:\s*\([^)]*\))*:\s*(.*)'
-        tle_data_matches = re.search(pattern_for_finding_tle_start_text, text_content, re.DOTALL)
+        tle_data_matches = re.match(pattern_for_finding_tle_start_text, text_content)
 
         if tle_data_matches:
             content_after_tle_set_line = tle_data_matches.group(1).strip()
@@ -169,10 +219,10 @@ def extract_tle_sets_from_ny2o(session: requests.Session):
     #    logging.error("Couldn't delete old files successfully, can't create new ny2o tle sets file.")
 
 def main():
-    #session = create_session()
-    #is_login_successful = login(session=session)
-    #if is_login_successful:
-    #    extract_tle_sets_from_ny2o(session=session)
-    delete_all_old_files_in_new_space_folder()
+    session = create_session()
+    is_login_successful = login(session=session)
+    if is_login_successful:
+        extract_tle_sets_from_ny2o(session=session)
+    #delete_all_old_files_in_new_space_folder()
 
 main()
