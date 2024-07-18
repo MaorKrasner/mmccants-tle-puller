@@ -11,5 +11,6 @@ config = {
     "credentials": {
         "identity": os.getenv("EMAIL"),
         "password": os.getenv("PASSWORD")
-    }
+    },
+    "mongo_db_uri": os.getenv("MONGO_DB_URI")
 }

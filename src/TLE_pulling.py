@@ -6,58 +6,11 @@ import html2text
 from config import config
 from dateutil.parser import parse
 from datetime import datetime, time
+from dbOperations import getNorads
 
 logging.basicConfig(level=logging.INFO)
 
-norad_ids = [
-    '58617',
-    '41465',
-    '47305',
-    '43866',
-    '36124',
-    '31797',
-    '32283',
-    '29658',
-    '32750',
-    '33244',
-    '52887',
-    '58643',
-    '58644',
-    '47947',
-    '47485',
-    '37954',
-    '39061',
-    '40381',
-    '42072',
-    '43495',
-    '55329',
-    '40538',
-    '43223',
-    '45165',
-    '37162',
-    '38109',
-    '39462',
-    '41334',
-    '43145',
-    '28888',
-    '37348',
-    '39232',
-    '43941',
-    '53883',
-    '42689',
-    '48247',
-    '48842',
-    '53367',
-    '53368',
-    '48840',
-    '48605',
-    '46179',
-    '43195',
-    '45017',
-    '43730',
-    '46089',
-    '44226',
-]
+norad_ids = getNorads()
 
 
 def create_session():

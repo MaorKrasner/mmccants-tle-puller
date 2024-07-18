@@ -13,6 +13,7 @@ services:
       - NEW_SPACE_OUTPUT_FOLDER_PATH=/data
       - EMAIL=tlepuller@gmail.com
       - PASSWORD=ShteiShurot1234
+      - MONGO_DB_URI=mongodb+srv://maorkrasner02:mk02admin@cluster123.dlguivn.mongodb.net/
     volumes:
       - /home/newspace/TLE-download:/data
     restart: always
