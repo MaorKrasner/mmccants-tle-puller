@@ -12,7 +12,6 @@ logging.basicConfig(level=logging.INFO)
 
 norad_ids = getNorads()
 
-
 def create_session():
     session = requests.Session()
     return session
@@ -41,73 +40,6 @@ def login(session: requests.Session):
     
     return False
 
-"""
-def delete_all_old_files_in_new_space_folder():
-    folder_path = str(os.path.abspath(config["new_space_output_folder_path"]))
-    logging.info(f'Folder path: {folder_path}')
-    if os.path.exists(folder_path):
-        files_in_folder = os.listdir(folder_path)
-        for file_name in files_in_folder:
-            if "ny2o_tle_data" in file_name:
-                file_path = os.path.join(folder_path, file_name)
-                try:
-                    os.remove(file_path)
-                    logging.info(f"Deleted file: {file_path}")
-                except Exception as e:
-                    logging.error(f"Error deleting file {file_path}: {e}")
-        return True
-    else:
-        logging.error("Folder to delete not found. Try again.")
-    return False
-"""
-
-def delete_all_old_files_in_new_space_folder():
-    folder_path = str(os.path.abspath(config["new_space_output_folder_path"]))
-    logging.info(f'Folder path: {folder_path}')
-    
-    if os.path.exists(folder_path):
-        files_in_folder = os.listdir(folder_path)
-        today_date = datetime.now().date()
-        cutoff_time = datetime.combine(today_date, time(22, 0))  # Combine today's date with 22:00 time
-
-        for file_name in files_in_folder:
-            if file_name.startswith("ny2o_tle_data"):
-                try:
-                    # Debug: Print the full file name
-                    logging.debug(f"Processing file: {file_name}")
-                    
-                    date_part = file_name.split('_')[3].split('.')[0]
-                    
-                    # Debug: Print the extracted date part
-                    logging.debug(f"Extracted date part: {date_part}")
-                    
-                    file_datetime = parse(date_part).replace(tzinfo=None)  # Make the datetime naive
-
-                    # Debug: Print the parsed datetime
-                    logging.debug(f"Parsed datetime: {file_datetime}")
-
-                    # Compare the file datetime with the cutoff datetime
-                    if file_datetime < cutoff_time:
-                        file_path = os.path.join(folder_path, file_name)
-                        try:
-                            os.remove(file_path)
-                            logging.info(f"Deleted file: {file_path}")
-                        except Exception as e:
-                            logging.error(f"Error deleting file {file_path}: {e}")
-                
-                except IndexError:
-                    logging.warning(f"File {file_name} does not match expected format.")
-                    continue
-                except ValueError:
-                    logging.warning(f"Invalid date format in file {file_name}.")
-                    continue
-        
-        return True
-    else:
-        logging.error("Folder to delete not found. Try again.")
-        return False
-
-
 
 def find_satellite_name(text_content: str):
     satellite_name = ""
@@ -120,9 +52,8 @@ def find_satellite_name(text_content: str):
 
 def write_tle_sets_into_text_file(tle_sets: list):
     current_date_time_in_iso = datetime.now().isoformat().replace(":", "-")
-    #folder_path = config["new_space_output_folder_path"]
-    #full_ny2o_file_path = os.path.join(folder_path, config["ny2o_output_file_name"] + "_" + str(current_date_time_in_iso) + ".txt")
-    full_ny2o_file_path = os.path.join(config["ny2o_output_file_name"] + "_" + str(current_date_time_in_iso) + ".txt")
+    folder_path = config["new_space_output_folder_path"]
+    full_ny2o_file_path = os.path.join(folder_path, config["ny2o_output_file_name"] + "_" + str(current_date_time_in_iso) + ".txt")
 
     with open(full_ny2o_file_path, "w") as f:
         time_now = datetime.now().strftime("%A, %B %d, %Y at %I:%M%p")
@@ -139,10 +70,6 @@ def write_tle_sets_into_text_file(tle_sets: list):
     logging.info(f'TLE objects written successfully into {full_ny2o_file_path}')
 
 def extract_tle_sets_from_ny2o(session: requests.Session):
-    #is_deleted_successfully = delete_all_old_files_in_new_space_folder()
-
-    #if is_deleted_successfully:
-
     pattern_for_finding_tle_start_text = r'Two Line Element Set(?:\s*\([^)]*\))*:\s*(.*)'
     pattern_for_finding_tle_start_text = re.compile(pattern_for_finding_tle_start_text, re.DOTALL)
     tle_sets = []
@@ -154,7 +81,7 @@ def extract_tle_sets_from_ny2o(session: requests.Session):
 
         satellite_name = find_satellite_name(text_content=text_content)
 
-        tle_data_matches = re.match(pattern_for_finding_tle_start_text, text_content)
+        tle_data_matches = re.search(pattern_for_finding_tle_start_text, text_content)
 
         if tle_data_matches:
             content_after_tle_set_line = tle_data_matches.group(1).strip()
@@ -168,14 +95,11 @@ def extract_tle_sets_from_ny2o(session: requests.Session):
             logging.info("Phrase 'Two Line Element Set' not found in the text.")
     
     write_tle_sets_into_text_file(tle_sets=tle_sets)
-    #else:
-    #    logging.error("Couldn't delete old files successfully, can't create new ny2o tle sets file.")
 
 def main():
     session = create_session()
     is_login_successful = login(session=session)
     if is_login_successful:
         extract_tle_sets_from_ny2o(session=session)
-    #delete_all_old_files_in_new_space_folder()
 
 main()
