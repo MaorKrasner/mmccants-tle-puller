@@ -4,7 +4,6 @@ import logging
 import requests
 import html2text
 from config import config
-from dateutil.parser import parse
 from datetime import datetime, time
 from dbOperations import getNorads
 

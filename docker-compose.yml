@@ -15,5 +15,5 @@ services:
       - PASSWORD=ShteiShurot1234
       - MONGO_DB_URI=mongodb+srv://maorkrasner02:mk02admin@cluster123.dlguivn.mongodb.net/dbname?retryWrites=true&w=majority&authSource=admin
     volumes:
-      - /home/newspace/TLE-download:/data
+      - /Users/maorkrasner/Desktop:/data
     restart: always
