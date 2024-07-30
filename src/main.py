@@ -9,7 +9,7 @@ def job():
 def get_utc_time():
     return datetime.now(timezone.utc)
 
-job_time_utc = "04:59"
+job_time_utc = "04:54"
 
 while True:
     try:
