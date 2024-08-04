@@ -1,44 +1,22 @@
+import time
 import logging
 from TLE_pulling import main
-from crontab import CronTab
-import sys
-import os
+from datetime import datetime, timezone
 
-def run_main():
-    logging.basicConfig(level=logging.INFO)
+SLEEPING_TIME_IN_SECONDS = 60 * 60
+
+def job():
+    main()
+
+def get_utc_time():
+    return datetime.now(timezone.utc)
+
+while True:
     try:
-        main()
+        current_utc_time = get_utc_time()
+        if current_utc_time.hour == '7' or current_utc_time == '8':
+            job()
+        time.sleep(SLEEPING_TIME_IN_SECONDS)
+        logging.info(f'Waiting until next time..., time right now: {str(datetime.now(timezone.utc))}')
     except Exception as e:
-        logging.error(f"Error while running script: {e}")
-
-def setup_cron_job():
-    # Initialize a new crontab for the current user
-    cron = CronTab(user=True)
-
-    # Define the command to run your script
-    script_path = os.path.abspath(__file__)
-    command = f'python3 {script_path} --run-main'
-    
-    # Check if a cron job with this command already exists
-    for job in cron:
-        if job.command == command:
-            print("Cron job already exists.")
-            return
-
-    # Create a new cron job
-    job = cron.new(command=command, comment='TLE pulling job')
-
-    # Schedule the job (every day at 04:54 UTC)
-    job.setall('54 4 * * *')
-
-    # Write the job to the crontab
-    cron.write()
-
-    print("Cron job added successfully.")
-
-if __name__ == "__main__":
-    # Check if the script should run the main function
-    if len(sys.argv) > 1 and sys.argv[1] == '--run-main':
-        run_main()
-    else:
-        setup_cron_job()
+        logging.error(f"Error while running script: {e}") 
